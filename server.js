@@ -56,7 +56,7 @@ function normalizeUser(data) {
   };
 }
 
-async function connectToTikTok(username) {
+async function connectToTikTok(username, options = {}) {
   const cleanUsername = String(username || '').trim().replace(/^@/, '');
   if (!cleanUsername) {
     throw new Error('Informe um @usuario válido do TikTok.');
@@ -70,10 +70,19 @@ async function connectToTikTok(username) {
   }
 
   currentUsername = cleanUsername;
-  tiktokConnection = new TikTokLiveConnection(cleanUsername, {
+  const connectionOptions = {
     processInitialData: true,
     enableExtendedGiftInfo: true
-  });
+  };
+
+  if (options.sessionId && options.sessionId.trim()) {
+    connectionOptions.sessionId = options.sessionId.trim();
+  }
+  if (options.ttwid && options.ttwid.trim()) {
+    connectionOptions.ttwid = options.ttwid.trim();
+  }
+
+  tiktokConnection = new TikTokLiveConnection(cleanUsername, connectionOptions);
 
   const state = await tiktokConnection.connect();
   isConnected = true;
@@ -82,7 +91,7 @@ async function connectToTikTok(username) {
     connected: true,
     username: cleanUsername,
     roomId: state.roomId,
-    message: `Conectado à live de @${cleanUsername} (Sala ${state.roomId})`
+    message: `🟢 Conectado à live de @${cleanUsername} (Sala ${state.roomId})`
   });
 
   // 1. Pessoas entrando na live -> Vira personagem automaticamente
@@ -269,8 +278,8 @@ io.on('connection', (socket) => {
     connected: isConnected,
     username: currentUsername,
     message: isConnected
-      ? `Conectado à live de @${currentUsername}`
-      : 'Modo Simulador ativo (ou conecte seu @ do TikTok)'
+      ? `🟢 Conectado à live de @${currentUsername}`
+      : '🔴 Desconectado (Informe seu @ do TikTok para conectar)'
   });
 
   socket.emit('pix_config_state', {
@@ -343,7 +352,7 @@ io.on('connection', (socket) => {
     await checkAndExecutePixIfWinner(fakeUser, fakeComment);
   });
 
-  socket.on('connect_tiktok', async ({ username }) => {
+  socket.on('connect_tiktok', async ({ username, sessionId, ttwid }) => {
     try {
       socket.emit('tiktok_status', {
         connected: false,
@@ -351,7 +360,7 @@ io.on('connection', (socket) => {
         loading: true,
         message: `Conectando à live de @${username}...`
       });
-      await connectToTikTok(username);
+      await connectToTikTok(username, { sessionId, ttwid });
     } catch (err) {
       isConnected = false;
       socket.emit('tiktok_status', {

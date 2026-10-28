@@ -98,56 +98,65 @@
       </button>
     </div>
 
-    <!-- ================= PAINEL DO STREAMER & SIMULADOR ================= -->
+    <!-- ================= PAINEL DO STREAMER (PRODUÇÃO REAL) ================= -->
     <aside class="control-panel" id="controlPanel">
       <div class="panel-header">
-        <h1>🎮 Painel da Live & Simulador</h1>
-        <p>Configure o prêmio, conecte seu TikTok ou teste tudo no simulador abaixo.</p>
+        <h1>🎮 Painel de Controle Oficial da Live</h1>
+        <p>Gerencie a conexão TikTok, travas de lucro e envio de prêmios em tempo real.</p>
       </div>
-
-      <!-- 0. Guia de Segurança e Anti-Ban -->
-      <section class="panel-card" style="border-color: #38bdf8; background: rgba(14, 165, 233, 0.08);">
-        <h2 style="color: #38bdf8; font-size: 0.84rem;">🛡️ Checklist de Segurança Anti-Ban</h2>
-        <div style="font-size: 0.72rem; color: #cbd5e1; display: flex; flex-direction: column; gap: 4px;">
-          <div>✅ <b>Título da Live no TikTok:</b> Use <code>Corrida Maluca dos Inscritos! 🏎️💨 Tap-Tap Grátis</code> (NUNCA coloque "PIX" no título!).</div>
-          <div>✅ <b>Categoria da Live:</b> Escolha <code>Jogos / Games</code> (nunca "Finanças" ou "Outros").</div>
-          <div>✅ <b>Terminologia Segura:</b> Use "Prêmio", "Mimo" ou "Vale Presente".</div>
-        </div>
-      </section>
 
       <!-- 1. Conexão TikTok Live -->
       <section class="panel-card">
         <h2>📡 1. Conexão TikTok Live</h2>
-        <div class="tiktok-connect-row">
-          <input
-            type="text"
-            id="tiktokUsernameInput"
-            placeholder="Digite seu @usuario (ex: @meucanal)"
-          />
-          <button class="btn btn-primary" id="connectTiktokBtn">Conectar</button>
-          <button class="btn btn-danger hidden" id="disconnectTiktokBtn">Desconectar</button>
+        <div class="form-group">
+          <label for="tiktokUsernameInput">Canal do TikTok que está Ao Vivo:</label>
+          <div class="tiktok-connect-row">
+            <input
+              type="text"
+              id="tiktokUsernameInput"
+              placeholder="Digite seu @canal (ex: @meucanal)"
+            />
+            <button class="btn btn-primary" id="connectTiktokBtn">Conectar</button>
+            <button class="btn btn-danger hidden" id="disconnectTiktokBtn">Desconectar</button>
+          </div>
         </div>
-        <div class="status-banner" id="tiktokStatusBanner">
-          🟢 Modo Simulador ativo — Você já pode testar a corrida agora mesmo!
+
+        <!-- Credenciais de Sessão Opcionais/Avançadas para blindagem -->
+        <details style="margin-top: 8px; font-size: 0.74rem; color: #94a3b8; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 6px 10px;">
+          <summary style="cursor: pointer; color: #38bdf8; font-weight: 700;">🔐 Credenciais de Sessão / Cookies (Opcional p/ Blindagem)</summary>
+          <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
+            <div class="form-group">
+              <label for="tiktokSessionIdInput" style="font-size: 0.7rem;">Cookie sessionid:</label>
+              <input type="password" id="tiktokSessionIdInput" placeholder="Cole o cookie sessionid se tiver" style="padding: 6px 8px; font-size: 0.72rem;" />
+            </div>
+            <div class="form-group">
+              <label for="tiktokTtwidInput" style="font-size: 0.7rem;">Cookie ttwid:</label>
+              <input type="text" id="tiktokTtwidInput" placeholder="Cole o cookie ttwid se tiver" style="padding: 6px 8px; font-size: 0.72rem;" />
+            </div>
+          </div>
+        </details>
+
+        <div class="status-banner" id="tiktokStatusBanner" style="margin-top: 10px;">
+          🔴 Desconectado (Informe seu @ do TikTok e clique em Conectar)
         </div>
       </section>
 
       <!-- 2. Controle da Rodada e Prêmio -->
       <section class="panel-card">
-        <h2>🏆 2. Prêmio & Controles da Corrida</h2>
+        <h2>🏆 2. Prêmio & Regras da Corrida</h2>
         <div class="form-group">
-          <label for="prizeInput">Prêmio do 1º Colocado (aparece na tela):</label>
+          <label for="prizeInput">Texto do Prêmio (Exibido na tela da live):</label>
           <input
             type="text"
             id="prizeInput"
             value="PRÊMIO DA RODADA: R$ 20,00"
-            placeholder="Ex: PRÊMIO DA RODADA: R$ 20,00 / Vale Presente"
+            placeholder="Ex: PRÊMIO DA RODADA: R$ 20,00"
           />
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="raceDistanceSelect">Duração / Tamanho da Pista:</label>
+            <label for="raceDistanceSelect">Duração / Distância da Pista:</label>
             <select id="raceDistanceSelect">
               <option value="500">500m (~5 Minutos)</option>
               <option value="1000" selected>1.000m (Padrão ~10 Minutos)</option>
@@ -159,44 +168,19 @@
             <label for="autoRestartSelect">Auto-Reiniciar após vitória:</label>
             <select id="autoRestartSelect">
               <option value="0">Manual (Streamer decide)</option>
-              <option value="12" selected>Automático em 12 seg</option>
-              <option value="20">Automático em 20 seg</option>
+              <option value="12">Automático em 12 seg</option>
+              <option value="20" selected>Automático em 20 seg</option>
             </select>
-          </div>
-        </div>
-
-        <!-- Calculadora de Lucro em Tempo Real para o Streamer -->
-        <div class="profit-box">
-          <div class="profit-header">
-            <span>💰 CONTROLE DE LUCRO DA RODADA</span>
-            <label class="bot-switch" title="Garante que a corrida dure os 10 minutos caso a meta de lucro ainda não tenha batido">
-              <input type="checkbox" id="safeProfitModeToggle" checked />
-              <span>🛡️ Ritmo 10 min / Lucro Seguro</span>
-            </label>
-          </div>
-          <div class="form-row" style="margin-top:6px;">
-            <div class="form-group">
-              <label for="prizeCostBrlInput">Custo do Prêmio (R$):</label>
-              <input type="text" id="prizeCostBrlInput" value="20" />
-            </div>
-            <div class="form-group">
-              <label for="coinValueBrlInput">1 Moeda vale p/ você (R$):</label>
-              <input type="text" id="coinValueBrlInput" value="0.014" title="Valor líquido real no TikTok: 1.000 moedas = US$ 2,50 (~R$ 14,00 líquidos no saque)" />
-            </div>
-          </div>
-          <div class="profit-stats" id="profitStatsDisplay">
-            <div>🪙 Moedas na rodada: <b id="roundCoinsText">0</b> (Meta p/ empatar: <b id="breakEvenCoinsText">1429</b>🪙)</div>
-            <div>💵 Seu Saque Líquido: <b id="roundRevenueBrlText">R$ 0,00</b> | Saldo: <b id="roundProfitBrlText" style="color:#fca5a5;">-R$ 20,00 (Aguardando presentes)</b></div>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="tapPowerRange">Potência do Tap-Tap: <span id="tapPowerVal">1.0x</span></label>
+            <label for="tapPowerRange">Sensibilidade Tap-Tap: <span id="tapPowerVal">1.0x</span></label>
             <input type="range" id="tapPowerRange" min="0.4" max="3.0" step="0.2" value="1.0" />
           </div>
           <div class="form-group">
-            <label for="giftPowerRange">Potência do Turbo (Presente): <span id="giftPowerVal">1.0x</span></label>
+            <label for="giftPowerRange">Sensibilidade Turbo (Presentes): <span id="giftPowerVal">1.0x</span></label>
             <input type="range" id="giftPowerRange" min="0.5" max="3.0" step="0.25" value="1.0" />
           </div>
         </div>
@@ -206,77 +190,38 @@
           <button class="btn btn-warning" id="resetRaceBtn">🔄 Nova Rodada (0m)</button>
           <button class="btn btn-secondary" id="soundToggleBtn">🔊 Som: Ligado</button>
           <button class="btn btn-primary" id="voiceToggleBtn">🗣️ Voz: Ligada</button>
-          <button class="btn btn-danger" id="clearPlayersBtn" style="grid-column: span 2;">🧹 Limpar Corredores</button>
+          <button class="btn btn-danger" id="clearPlayersBtn" style="grid-column: span 2;">🧹 Limpar Pista</button>
         </div>
       </section>
 
-      <!-- 3. Simulador Interativo (Teste sem estar em Live!) -->
-      <section class="panel-card simulator-card">
-        <div class="sim-header">
-          <h2>🧪 3. Simulador de Live (Teste Agora!)</h2>
-          <label class="bot-switch">
-            <input type="checkbox" id="autoBotsToggle" />
-            <span>🤖 Simular Live Cheia Automática</span>
-          </label>
-        </div>
-
-        <div class="sim-controls">
-          <div class="sim-row">
-            <button class="btn btn-accent" id="simJoinViewerBtn">
-              👋 + Entrar Pessoa na Live
-            </button>
-            <button class="btn btn-accent" id="simJoin5ViewersBtn">
-              👥 + Entrar 5 Pessoas
-            </button>
+      <!-- 3. Gestão Financeira & Trava de Lucro -->
+      <section class="panel-card" style="border-color: #f59e0b; background: rgba(245, 158, 11, 0.05);">
+        <div class="profit-box" style="margin: 0; background: transparent; border: none; padding: 0;">
+          <div class="profit-header">
+            <span style="color: #fbbf24; font-weight: 800;">💰 3. GESTÃO DE LUCRO DA RODADA</span>
+            <label class="bot-switch" title="Garante que a corrida dure os 10 minutos caso a meta de lucro ainda não tenha batido">
+              <input type="checkbox" id="safeProfitModeToggle" checked />
+              <span>🛡️ Trava de Lucro Seguro</span>
+            </label>
           </div>
-
-          <div class="form-group" style="margin-top: 10px;">
-            <label for="activeSimPlayerSelect">Controlar Corredor no Teste (ou aperte <b>ESPAÇO</b> para Tap-Tap):</label>
-            <select id="activeSimPlayerSelect">
-              <option value="random">🎲 Aleatório (Qualquer corredor)</option>
-            </select>
+          <div class="form-row" style="margin-top:8px;">
+            <div class="form-group">
+              <label for="prizeCostBrlInput">Custo do Prêmio (R$):</label>
+              <input type="text" id="prizeCostBrlInput" value="20" />
+            </div>
+            <div class="form-group">
+              <label for="coinValueBrlInput">1 Moeda TikTok vale (R$):</label>
+              <input type="text" id="coinValueBrlInput" value="0.014" title="Valor líquido real no TikTok: 1.000 moedas = ~R$ 14,00 líquidos no saque" />
+            </div>
           </div>
-
-          <div class="tap-test-zone">
-            <button class="btn btn-taptap" id="simTapSingleBtn">
-              👆 DAR TAP-TAP! (+1 Tap)<br /><small>Ou aperte Tecla ESPAÇO</small>
-            </button>
-            <button class="btn btn-taptap-burst" id="simTapBurstBtn">
-              🔥 RAJADA DE TAP-TAP! (+15 Taps)<br /><small>Acelera muito mais rápido!</small>
-            </button>
+          <div class="profit-stats" id="profitStatsDisplay" style="margin-top: 8px;">
+            <div>🪙 Moedas arrecadadas nesta rodada: <b id="roundCoinsText">0</b> (Meta p/ pagar prêmio: <b id="breakEvenCoinsText">1429</b>🪙)</div>
+            <div>💵 Faturamento Líquido: <b id="roundRevenueBrlText">R$ 0,00</b> | Saldo da Rodada: <b id="roundProfitBrlText" style="color:#fca5a5;">-R$ 20,00 (Aguardando presentes)</b></div>
           </div>
-
-          <label class="gift-sim-label">🎁 Testar Presentes Reais do TikTok (Teto Máximo: 100m):</label>
-          <div class="gift-buttons-grid">
-            <button class="btn-gift tier-1" data-gift="Rosa" data-coins="1" data-icon="🌹">
-              <span class="gift-emoji">🌹</span>
-              <strong>Rosa (1 moeda)</strong>
-              <small>Avança +0,5m (~R$ 0,014)</small>
-            </button>
-            <button class="btn-gift tier-2" data-gift="Rosquinha" data-coins="30" data-icon="🍩">
-              <span class="gift-emoji">🍩</span>
-              <strong>Rosquinha (30🪙)</strong>
-              <small>Avança +12m (~R$ 0,42)</small>
-            </button>
-            <button class="btn-gift tier-3" data-gift="Confete" data-coins="100" data-icon="🎉">
-              <span class="gift-emoji">🎉</span>
-              <strong>Confete (100🪙)</strong>
-              <small>Avança +30m (~R$ 1,40)</small>
-            </button>
-            <button class="btn-gift tier-4" data-gift="Galáxia" data-coins="1000" data-icon="🌌">
-              <span class="gift-emoji">🌌</span>
-              <strong>Galáxia (1.000🪙)</strong>
-              <small>Teto +100m (~R$ 14,00)</small>
-            </button>
-          </div>
-
-          <button class="btn btn-success" id="simWinnerPixChatBtn" style="margin-top:10px;width:100%;">
-            💳 Simular Vencedor Enviando Chave PIX no Chat
-          </button>
         </div>
       </section>
 
-      <!-- 4. Sistema de PIX Automático / Manual -->
+      <!-- 4. Sistema de Pagamento PIX -->
       <section class="panel-card" style="border-color: #10b981; background: linear-gradient(180deg, #064e3b 0%, #111827 100%);">
         <div class="sim-header">
           <h2 style="color: #34d399;">⚡ 4. Envio de PIX (Automático ou Manual)</h2>
@@ -287,49 +232,49 @@
           <div class="form-group">
             <label for="pixModeSelect">Modo de Envio do PIX:</label>
             <select id="pixModeSelect">
-              <option value="AUTO" selected>⚡ 100% Automático (Detecta e Envia Sozinho)</option>
-              <option value="MANUAL">🖐️ Manual / 1-Clique (Detecta e Pede Confirmação)</option>
+              <option value="MANUAL" selected>🖐️ Manual / 1-Clique (Recomendado - Streamer Confirma)</option>
+              <option value="AUTO">⚡ 100% Automático (API Bancária Dispara Sozinha)</option>
               <option value="OFF">🚫 Desativado</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="pixProviderSelect">Provedor do Banco:</label>
+            <label for="pixProviderSelect">Método de Envio:</label>
             <select id="pixProviderSelect">
-              <option value="SIMULATOR" selected>🧪 Modo Simulação (Para Testes)</option>
-              <option value="ASAAS">🏦 Asaas (API Key Oficial)</option>
+              <option value="SIMULATOR" selected>📱 Manual (Envio pelo App do seu Banco)</option>
+              <option value="ASAAS">🏦 Asaas API (Gateway Automatizado)</option>
             </select>
           </div>
         </div>
 
         <div class="form-group" id="pixApiKeyGroup" style="display:none;">
-          <label for="pixApiKeyInput">Chave de API do Banco (Token de Acesso):</label>
-          <input type="password" id="pixApiKeyInput" placeholder="Cole sua API Key do Asaas aqui" />
+          <label for="pixApiKeyInput">Chave de API do Asaas:</label>
+          <input type="password" id="pixApiKeyInput" placeholder="Cole sua API Key do Asaas aqui ($aact_...)" />
         </div>
 
-        <!-- Área de Confirmação quando o Modo Manual estiver ativo -->
+        <!-- Área de Ação quando a Chave do Vencedor for Detectada -->
         <div class="pix-manual-action-box hidden" id="pixManualActionBox">
           <div style="font-size:0.76rem; font-weight:800; color:#fde047;">
             🔔 Chave do Vencedor Detectada no Chat!
           </div>
           <div style="font-size:0.74rem;">
-            Vencedor: <b id="manualWinnerName">@usuario</b><br />
-            Chave: <code id="manualPixKeyText" style="color:#6ee7b7; background:#000; padding:2px 4px; border-radius:4px;">chave@pix.com</code>
+            Vencedor Oficial: <b id="manualWinnerName">@usuario</b><br />
+            Chave PIX: <code id="manualPixKeyText" style="color:#6ee7b7; background:#000; padding:2px 4px; border-radius:4px;">chave@pix.com</code>
             (<span id="manualPixKeyType">E-mail</span>)
           </div>
-          <div style="display:flex; gap:6px; margin-top:4px;">
-            <button class="btn btn-primary" id="copyPixKeyBtn" style="flex:1; padding:6px 8px; font-size:0.75rem;">📋 Copiar Chave</button>
-            <button class="btn btn-success" id="confirmManualPixBtn" style="flex:1; padding:6px 8px; font-size:0.75rem;">💸 Enviar PIX Agora</button>
+          <div style="display:flex; gap:6px; margin-top:6px;">
+            <button class="btn btn-primary" id="copyPixKeyBtn" style="flex:1; padding:7px 10px; font-size:0.75rem;">📋 Copiar Chave</button>
+            <button class="btn btn-success" id="confirmManualPixBtn" style="flex:1; padding:7px 10px; font-size:0.75rem;">💸 Confirmar Envio</button>
           </div>
         </div>
 
-        <div class="status-banner" id="pixStatusBanner" style="background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.35);color:#a7f3d0;">
+        <div class="status-banner" id="pixStatusBanner" style="background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.35);color:#a7f3d0; margin-top:8px;">
           🟢 Validação ativa: Apenas o vencedor oficial pode enviar a chave.
         </div>
       </section>
 
-      <!-- 5. Histórico de Ganhadores -->
+      <!-- 5. Histórico Oficial de Vencedores -->
       <section class="panel-card">
-        <h2>📋 5. Histórico de Vencedores e Comprovantes PIX</h2>
+        <h2>📋 5. Histórico de Vencedores da Sessão</h2>
         <div class="winners-history-list" id="winnersHistoryList">
           <div class="empty-history">Nenhum vencedor registrado ainda nesta sessão.</div>
         </div>
@@ -352,6 +297,6 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="game.js?v=5"></script>
+  <script src="game.js?v=6"></script>
 </body>
 </html>

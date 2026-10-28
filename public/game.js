@@ -25,6 +25,8 @@ const togglePanelBtn = document.getElementById('togglePanelBtn');
 const controlPanel = document.getElementById('controlPanel');
 
 const tiktokUsernameInput = document.getElementById('tiktokUsernameInput');
+const tiktokSessionIdInput = document.getElementById('tiktokSessionIdInput');
+const tiktokTtwidInput = document.getElementById('tiktokTtwidInput');
 const connectTiktokBtn = document.getElementById('connectTiktokBtn');
 const disconnectTiktokBtn = document.getElementById('disconnectTiktokBtn');
 const tiktokStatusBanner = document.getElementById('tiktokStatusBanner');
@@ -42,13 +44,6 @@ const resetRaceBtn = document.getElementById('resetRaceBtn');
 const soundToggleBtn = document.getElementById('soundToggleBtn');
 const voiceToggleBtn = document.getElementById('voiceToggleBtn');
 const clearPlayersBtn = document.getElementById('clearPlayersBtn');
-
-const autoBotsToggle = document.getElementById('autoBotsToggle');
-const simJoinViewerBtn = document.getElementById('simJoinViewerBtn');
-const simJoin5ViewersBtn = document.getElementById('simJoin5ViewersBtn');
-const activeSimPlayerSelect = document.getElementById('activeSimPlayerSelect');
-const simTapSingleBtn = document.getElementById('simTapSingleBtn');
-const simTapBurstBtn = document.getElementById('simTapBurstBtn');
 const winnersHistoryList = document.getElementById('winnersHistoryList');
 
 const safeProfitModeToggle = document.getElementById('safeProfitModeToggle');
@@ -1318,11 +1313,13 @@ socket.on('tiktok_status', (status) => {
 connectTiktokBtn.addEventListener('click', () => {
   const username = tiktokUsernameInput.value.trim();
   if (!username) {
-    tiktokStatusBanner.textContent = '⚠️ Digite seu @usuario do TikTok antes de conectar.';
+    tiktokStatusBanner.textContent = '⚠️ Digite seu @canal do TikTok antes de conectar.';
     tiktokStatusBanner.classList.add('error');
     return;
   }
-  socket.emit('connect_tiktok', { username });
+  const sessionId = tiktokSessionIdInput ? tiktokSessionIdInput.value.trim() : '';
+  const ttwid = tiktokTtwidInput ? tiktokTtwidInput.value.trim() : '';
+  socket.emit('connect_tiktok', { username, sessionId, ttwid });
 });
 
 disconnectTiktokBtn.addEventListener('click', () => {
@@ -1391,56 +1388,15 @@ clearPlayersBtn.addEventListener('click', () => {
   state.camMinDist = 0;
   state.camMaxDist = 70;
   winnerOverlay.classList.add('hidden');
-  updateSimPlayerDropdown();
-  addFeedItem('🧹 Pista limpa! Aguardando novos espectadores.');
+  addFeedItem('🧹 Pista limpa! Aguardando novos espectadores da live.');
 });
 
-// Botões de Simulação Manual
-simJoinViewerBtn.addEventListener('click', () => {
-  const u = createRandomSimUser();
-  const p = ensurePlayer(u);
-  activeSimPlayerSelect.value = p.id;
-});
-
-simJoin5ViewersBtn.addEventListener('click', () => {
-  for (let i = 0; i < 5; i++) {
-    ensurePlayer(createRandomSimUser());
-  }
-});
-
-simTapSingleBtn.addEventListener('click', () => {
-  const p = getSelectedOrRandomSimUser();
-  handleTapEvent(p, 1);
-});
-
-simTapBurstBtn.addEventListener('click', () => {
-  const p = getSelectedOrRandomSimUser();
-  handleTapEvent(p, 15);
-});
-
-document.querySelectorAll('.btn-gift').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const p = getSelectedOrRandomSimUser();
-    const giftName = btn.getAttribute('data-gift');
-    const coins = Number(btn.getAttribute('data-coins')) || 1;
-    handleGiftEvent({
-      user: p,
-      giftName,
-      totalCoins: coins
-    });
-  });
-});
-
-// Atalho Tecla ESPAÇO para dar Tap-Tap e Tecla H para Ocultar Painel (Modo OBS)
+// Tecla H para Ocultar/Mostrar Painel (Modo OBS)
 window.addEventListener('keydown', (e) => {
   if (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
     return;
   }
-  if (e.code === 'Space') {
-    e.preventDefault();
-    const p = getSelectedOrRandomSimUser();
-    handleTapEvent(p, 2);
-  } else if (e.key === 'h' || e.key === 'H') {
+  if (e.key === 'h' || e.key === 'H') {
     toggleStreamerPanel();
   }
 });
@@ -1453,36 +1409,6 @@ function toggleStreamerPanel() {
 }
 
 togglePanelBtn.addEventListener('click', toggleStreamerPanel);
-
-// Simulador Automático de Live Cheia (Bots dando Tap-Tap e mandando Presentes)
-setInterval(() => {
-  if (!autoBotsToggle.checked || state.status !== 'running') return;
-
-  if (state.players.size < 8 && Math.random() < 0.35) {
-    ensurePlayer(createRandomSimUser());
-  }
-
-  const all = Array.from(state.players.values());
-  if (all.length === 0) return;
-
-  // Vários espectadores dando Tap-Tap
-  const tapper = all[Math.floor(Math.random() * all.length)];
-  const tapAmount = Math.floor(Math.random() * 8) + 1;
-  handleTapEvent(tapper, tapAmount);
-
-  // Chance de alguém mandar presente turbo
-  if (Math.random() < 0.16) {
-    const gifter = all[Math.floor(Math.random() * all.length)];
-    const roll = Math.random();
-    if (roll < 0.65) {
-      handleGiftEvent({ user: gifter, giftName: 'Rosa', totalCoins: 1 });
-    } else if (roll < 0.9) {
-      handleGiftEvent({ user: gifter, giftName: 'Rosquinha', totalCoins: 30 });
-    } else {
-      handleGiftEvent({ user: gifter, giftName: 'Carro Esportivo', totalCoins: 200 });
-    }
-  }
-}, 320);
 
 // ================= CONTROLES E EVENTOS DE PIX (AUTOMÁTICO / MANUAL) =================
 const pixModeSelect = document.getElementById('pixModeSelect');
@@ -1626,40 +1552,12 @@ if (closeReceiptBtn) {
   });
 }
 
-// Botão de Teste: Simular Vencedor enviando PIX no Chat
-if (simWinnerPixChatBtn) {
-  simWinnerPixChatBtn.addEventListener('click', () => {
-    const activeSel = activeSimPlayerSelect.value;
-    let chosen = getSelectedOrRandomSimUser();
-    // Simula como vencedor se não houver um ainda
-    socket.emit('set_active_winner', {
-      uniqueId: chosen.uniqueId,
-      nickname: chosen.nickname,
-      prizeAmount: 20.00,
-      roundId: Date.now()
-    });
-
-    setTimeout(() => {
-      const demoKeys = [
-        '11987654321',
-        'camila.vencedora@gmail.com',
-        '33458921845',
-        'c4a89f31-89be-4f51-b012-78d9124a9192'
-      ];
-      const randomKey = demoKeys[Math.floor(Math.random() * demoKeys.length)];
-      socket.emit('simulate_winner_pix_chat', { key: randomKey });
-    }, 400);
-  });
-}
-
 // Se o link tiver ?obs=1, oculta o painel automaticamente para a cena do OBS ficar limpa
 if (new URLSearchParams(window.location.search).has('obs')) {
   controlPanel.classList.add('hidden');
   togglePanelBtn.classList.add('hidden');
 }
 
-// Inicializa com 4 corredores de demonstração para o usuário já ver a pista funcionando!
-for (let i = 0; i < 4; i++) {
-  ensurePlayer(createRandomSimUser());
-}
+// Pista inicia 100% limpa aguardando os espectadores reais da live do TikTok entrarem
+state.players.clear();
 requestAnimationFrame(gameLoop);
