@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demonstração Oficial: Jogabilidade, Narrador e Pista 2.5D</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body {
+      background: #020617;
+      color: #f8fafc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .header {
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 20px;
+      font-weight: 900;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .header p {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .main-wrap {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      max-width: 900px;
+      width: 100%;
+    }
+    .stage {
+      position: relative;
+      width: 340px;
+      height: 600px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 50px rgba(56, 189, 248, 0.25), 0 0 0 3px #1e293b;
+      background: #000;
+      flex-shrink: 0;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .dashboard {
+      flex: 1;
+      min-width: 320px;
+      max-width: 450px;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .dash-section {
+      background: #1e293b;
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid #334155;
+    }
+    .dash-title {
+      font-size: 13px;
+      font-weight: 900;
+      color: #38bdf8;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .btn {
+      background: #0f172a;
+      color: #fff;
+      border: 1px solid #334155;
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .btn:hover {
+      background: #334155;
+      border-color: #38bdf8;
+    }
+    .btn-tap {
+      background: #0284c7;
+      border-color: #38bdf8;
+    }
+    .btn-tap:hover {
+      background: #0369a1;
+    }
+    .btn-gift-rose {
+      background: #e11d48;
+      border-color: #fb7185;
+    }
+    .btn-gift-donut {
+      background: #9333ea;
+      border-color: #c084fc;
+    }
+    .btn-gift-confetti {
+      background: #d97706;
+      border-color: #facc15;
+    }
+    .btn-gift-galaxy {
+      background: #ca8a04;
+      border-color: #fde047;
+      color: #000;
+      font-weight: 900;
+    }
+    .btn-whistle {
+      background: #475569;
+      border-color: #94a3b8;
+    }
+    .btn-win {
+      background: #eab308;
+      color: #000;
+      border-color: #fde047;
+      font-weight: 900;
+      grid-column: span 2;
+    }
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 3px 0;
+      color: #cbd5e1;
+    }
+    .telemetry-val {
+      font-weight: bold;
+      color: #38bdf8;
+    }
+    .narrator-log {
+      height: 90px;
+      overflow-y: auto;
+      background: #090d16;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 11px;
+      font-family: monospace;
+      color: #a7f3d0;
+      border: 1px solid #1e293b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>🏎️ MOTOR COMPLETO: JOGABILIDADE + NARRADOR + PISTA</h1>
+    <p>Simulador oficial com física em tempo real, voz esportiva brasileira e efeitos sonoros</p>
+  </div>
+
+  <div class="main-wrap">
+    <!-- Canvas da Pista 2.5D -->
+    <div class="stage">
+      <canvas id="raceCanvas" width="540" height="960"></canvas>
+    </div>
+
+    <!-- Painel de Controle e Testes -->
+    <div class="dashboard">
+      <!-- 1. Controles de Jogabilidade (Tap & Gifts) -->
+      <div class="dash-section">
+        <div class="dash-title">🎮 Testar Jogabilidade (Tap & Presentes)</div>
+        <div class="btn-grid">
+          <button class="btn btn-tap" id="btnTapLucas">👆 Tap @Lucas (+6.5 km/h)</button>
+          <button class="btn btn-tap" id="btnTapMariana">👆 Tap @Mariana</button>
+          <button class="btn btn-gift-rose" id="btnGiftRose">🌹 1 Rosa (0.5m)</button>
+          <button class="btn btn-gift-donut" id="btnGiftDonut">🍩 30 Moedas (~12m)</button>
+          <button class="btn btn-gift-confetti" id="btnGiftConfetti">🎉 100 Moedas (30m)</button>
+          <button class="btn btn-gift-galaxy" id="btnGiftGalaxy">🌌 1.000 Moedas (Teto 100m)</button>
+          <button class="btn btn-win" id="btnWinLucas">🏆 Consagrar Campeão (Chegada)</button>
+        </div>
+      </div>
+
+      <!-- 2. Testar Narrador e Áudio Procedural -->
+      <div class="dash-section">
+        <div class="dash-title">🗣️ Testar Narrador (Voz pt-BR & Áudios)</div>
+        <div class="btn-grid">
+          <button class="btn" id="btnNarrateStart">🏁 Largada 3-2-1</button>
+          <button class="btn" id="btnNarrateOvertake">🔥 Ultrapassagem</button>
+          <button class="btn btn-whistle" id="btnNarrateWhistle">⏰ Apito 10 Minutos</button>
+          <button class="btn" id="btnNarratePix">💰 Pix Enviado</button>
+        </div>
+      </div>
+
+      <!-- 3. Telemetria e Economia da Rodada -->
+      <div class="dash-section">
+        <div class="dash-title">📊 Economia da Corrida (Break-Even)</div>
+        <div class="telemetry-row">
+          <span>Tempo de Prova:</span>
+          <span class="telemetry-val" id="timeElapsedVal">00:00 / 10:00</span>
+        </div>
+        <div class="telemetry-row">
+          <span>Moedas Arrecadadas:</span>
+          <span class="telemetry-val" id="coinsVal">0 🪙</span>
+        </div>
+        <div class="telemetry-row">
+          <span>Meta Break-Even (R$ 20):</span>
+          <span class="telemetry-val" id="breakEvenVal">800 🪙 (R$ 20,00)</span>
+        </div>
+        <div class="telemetry-row">
+          <span>Lucro Líquido Estimado:</span>
+          <span class="telemetry-val" id="netProfitVal">- R$ 20,00</span>
+        </div>
+      </div>
+
+      <!-- 4. Log do Narrador -->
+      <div class="dash-section">
+        <div class="dash-title">📢 Fala do Narrador ao Vivo</div>
+        <div class="narrator-log" id="narratorLogText">> Narrador pronto e conectado ao motor de voz pt-BR.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts Oficiais -->
+  <script src="./SCRIPT_NARRADOR_OFICIAL.js"></script>
+  <script src="./SCRIPT_JOGABILIDADE_OFICIAL.js"></script>
+  <script src="./SCRIPT_PISTA_OFICIAL.js"></script>
+
+  <script>
+    // 1. Instancia os Três Motores Integrados
+    const narrator = new NarratorEngine();
+    const gameplay = new GameplayEngine({
+      raceDistance: 1000,
+      duration: 600,
+      prizeCostBrl: 20.00,
+      coinNetValueBrl: 0.025,
+      narrator: narrator
+    });
+    const track = new TrackEngine(document.getElementById('raceCanvas'));
+
+    // Redireciona o estado dos jogadores para a pista renderizar exatamente
+    track.state.players = gameplay.players;
+
+    // Log visual do narrador
+    const origSpeak = narrator.speak.bind(narrator);
+    narrator.speak = function(text, priority) {
+      origSpeak(text, priority);
+      const logEl = document.getElementById('narratorLogText');
+      if (logEl) {
+        logEl.innerHTML = `> [NARRADOR]: "${text}"<br>` + logEl.innerHTML;
+      }
+    };
+
+    // 2. Adiciona 4 Corredores Iniciais
+    const p1 = gameplay.joinPlayer({ uniqueId: '1', nickname: 'lucas_gamer' });
+    const p2 = gameplay.joinPlayer({ uniqueId: '2', nickname: 'mariana_pro' });
+    const p3 = gameplay.joinPlayer({ uniqueId: '3', nickname: 'pedro_speed' });
+    const p4 = gameplay.joinPlayer({ uniqueId: '4', nickname: 'ana_turbo' });
+
+    // Ajusta coordenadas X de pista para cada raia
+    let idx = 0;
+    for (const p of gameplay.players.values()) {
+      p.x = track.trackLeft + (track.trackWidth / 4) * (idx + 0.5);
+      idx++;
+    }
+
+    gameplay.status = 'running';
+    track.state.status = 'running';
+
+    // 3. Loop Unificado a 60 FPS
+    let lastTime = performance.now();
+    function loop(now) {
+      const dt = Math.min(0.1, (now - lastTime) / 1000);
+      lastTime = now;
+
+      gameplay.update(dt);
+      track.update(dt);
+      track.drawTrack();
+
+      // Atualiza Telemetria
+      updateTelemetryUi();
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    function updateTelemetryUi() {
+      const m = Math.floor(gameplay.roundElapsedSeconds / 60);
+      const s = Math.floor(gameplay.roundElapsedSeconds % 60);
+      document.getElementById('timeElapsedVal').textContent = 
+        `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')} / 10:00`;
+
+      document.getElementById('coinsVal').textContent = `${gameplay.roundTotalCoins} 🪙`;
+
+      const grossBrl = gameplay.roundTotalCoins * 0.025;
+      const netBrl = grossBrl - gameplay.prizeCostBrl;
+      const netEl = document.getElementById('netProfitVal');
+      if (netBrl >= 0) {
+        netEl.textContent = `+ R$ ${netBrl.toFixed(2)} (LUCRO VERDE)`;
+        netEl.style.color = '#4ade80';
+      } else {
+        netEl.textContent = `- R$ ${Math.abs(netBrl).toFixed(2)}`;
+        netEl.style.color = '#f87171';
+      }
+    }
+
+    // 4. Conecta os Botões de Ação
+    document.getElementById('btnTapLucas').addEventListener('click', () => {
+      gameplay.processTap('1', 5);
+      track.triggerTap('1', 5);
+    });
+
+    document.getElementById('btnTapMariana').addEventListener('click', () => {
+      gameplay.processTap('2', 5);
+      track.triggerTap('2', 5);
+    });
+
+    document.getElementById('btnGiftRose').addEventListener('click', () => {
+      gameplay.processGift('1', 'Rosa', 1);
+      track.triggerTurbo('1', 1);
+    });
+
+    document.getElementById('btnGiftDonut').addEventListener('click', () => {
+      gameplay.processGift('2', 'Rosquinha', 30);
+      track.triggerTurbo('2', 2);
+    });
+
+    document.getElementById('btnGiftConfetti').addEventListener('click', () => {
+      gameplay.processGift('1', 'Confete', 100);
+      track.triggerTurbo('1', 3);
+    });
+
+    document.getElementById('btnGiftGalaxy').addEventListener('click', () => {
+      gameplay.processGift('2', 'Galáxia', 1000);
+      track.triggerTurbo('2', 4);
+    });
+
+    document.getElementById('btnWinLucas').addEventListener('click', () => {
+      p1.distance = 1000;
+      gameplay.finishRace(p1, false);
+      track.state.status = 'finished';
+      track.state.confetti = [];
+      for (let i = 0; i < 90; i++) {
+        track.state.confetti.push({
+          x: Math.random() * track.width,
+          y: -20 - Math.random() * 300,
+          vx: (Math.random() - 0.5) * 90,
+          vy: 110 + Math.random() * 140,
+          color: track.kartColors[i % track.kartColors.length],
+          size: 6 + Math.random() * 6,
+          angle: Math.random() * Math.PI * 2
+        });
+      }
+    });
+
+    document.getElementById('btnNarrateStart').addEventListener('click', () => {
+      narrator.narrateCountdown(0);
+    });
+
+    document.getElementById('btnNarrateOvertake').addEventListener('click', () => {
+      narrator.narrateOvertake('mariana_pro');
+    });
+
+    document.getElementById('btnNarrateWhistle').addEventListener('click', () => {
+      narrator.playSound('whistle');
+      narrator.narrateVictory('lucas_gamer', true);
+    });
+
+    document.getElementById('btnNarratePix').addEventListener('click', () => {
+      narrator.narratePixSent('lucas_gamer', 20.00);
+    });
+  </script>
+
+</body>
+</html>
