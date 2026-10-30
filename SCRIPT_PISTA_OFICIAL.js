@@ -443,6 +443,18 @@ class TrackEngine {
     if (this.state.screenShake > 0) {
       this.state.screenShake = Math.max(0, this.state.screenShake - 12 * dt);
     }
+
+    // 5.8 Física dos Confetes de Vitória
+    if (this.state.status === 'finished') {
+      for (const c of this.state.confetti) {
+        c.y += c.vy * dt;
+        c.angle += 4 * dt;
+        if (c.y > this.height + 20) {
+          c.y = -20;
+          c.x = Math.random() * this.width;
+        }
+      }
+    }
   }
 
   // ============================================================================

@@ -102,9 +102,10 @@
   </div>
 
   <div class="controls">
-    <button class="btn btn-tap" id="btnTap">👆 Simular Tap-Tap</button>
-    <button class="btn btn-turbo" id="btnTurbo">⚡ Simular Super Turbo</button>
+    <button class="btn btn-tap" id="btnTap">👆 Tap-Tap (+Aceleração)</button>
+    <button class="btn btn-turbo" id="btnTurbo">⚡ Super Turbo (+Aura & Fogo)</button>
     <button class="btn" id="btnAddKart">🏎️ + Corredor</button>
+    <button class="btn btn-win" id="btnWin" style="background: #eab308; color: #000; border-color: #facc15;">🏆 Cruzar Chegada (Confetes)</button>
   </div>
 
   <!-- Importa o Script Oficial da Pista -->
@@ -113,7 +114,7 @@
   <script>
     const engine = new TrackEngine(document.getElementById('raceCanvas'));
 
-    // Adiciona 4 corredores iniciais de demonstração
+    // Adiciona 4 corredores de demonstração
     engine.addPlayer('1', 'joao_pro', null);
     engine.addPlayer('2', 'maria_vip', null);
     engine.addPlayer('3', 'pedro_speed', null);
@@ -128,7 +129,9 @@
     });
 
     document.getElementById('btnTurbo').addEventListener('click', () => {
-      engine.triggerTurbo('2', 3);
+      const tiers = [1, 2, 3, 4];
+      const tier = tiers[Math.floor(Math.random() * tiers.length)];
+      engine.triggerTurbo('2', tier);
     });
 
     document.getElementById('btnAddKart').addEventListener('click', () => {
@@ -136,6 +139,26 @@
       const nomes = ['lucas', 'camila', 'felipe', 'beatriz', 'rafael'];
       const n = nomes[Math.floor(Math.random() * nomes.length)] + '_' + Math.floor(Math.random() * 99);
       engine.addPlayer(id, n, null);
+    });
+
+    document.getElementById('btnWin').addEventListener('click', () => {
+      const leader = engine.state.players.get('1');
+      if (leader) {
+        leader.distance = engine.state.raceDistance;
+        engine.state.status = 'finished';
+        engine.state.confetti = [];
+        for (let i = 0; i < 90; i++) {
+          engine.state.confetti.push({
+            x: Math.random() * engine.width,
+            y: -20 - Math.random() * 300,
+            vx: (Math.random() - 0.5) * 90,
+            vy: 110 + Math.random() * 140,
+            color: engine.kartColors[i % engine.kartColors.length],
+            size: 6 + Math.random() * 6,
+            angle: Math.random() * Math.PI * 2
+          });
+        }
+      }
     });
   </script>
 
